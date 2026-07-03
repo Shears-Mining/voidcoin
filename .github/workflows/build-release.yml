@@ -44,7 +44,8 @@ jobs:
         run: |
           cmake -B build-cli -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF \
             -DWITH_ZMQ=ON -DWITH_MINIUPNPC=ON -DWITH_NATPMP=ON
-          cmake --build build-cli -j$(nproc)
+          cmake --build build-cli -j$(nproc) 2>&1 | tail -50
+          cmake --build build-cli -- -k 0 2>&1 | grep "error:" | head -20 || true
           echo "=== Build output ==="
           find build-cli/src -maxdepth 1 -type f -executable | head -20
 
@@ -140,6 +141,10 @@ jobs:
             cmake curl make patch \
             bison g++ pkgconf python3 xz-utils \
             g++-mingw-w64-x86-64 mingw-w64 nsis
+          # Use posix threading model for better C++20 support
+          sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix 2>/dev/null || true
+          sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix 2>/dev/null || true
+          x86_64-w64-mingw32-g++-posix --version
 
       - name: Build depends for Windows
         run: |
