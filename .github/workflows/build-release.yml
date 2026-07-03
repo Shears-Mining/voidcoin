@@ -75,8 +75,9 @@ jobs:
           VERSION=${{ needs.get-version.outputs.version }}
           DIRNAME="VoidCoin-${VERSION}-Linux-Qt"
           mkdir -p dist-qt/${DIRNAME}
-          cp build-qt/src/qt/voidcoin-qt dist-qt/${DIRNAME}/
-          cp build-cli/src/voidcoind build-cli/src/voidcoin-cli dist-qt/${DIRNAME}/
+          find build-qt -name "voidcoin-qt" -type f | head -1 | xargs -I{} cp {} dist-qt/${DIRNAME}/
+          find build-cli -name "voidcoind" -type f | head -1 | xargs -I{} cp {} dist-qt/${DIRNAME}/
+          find build-cli -name "voidcoin-cli" -type f | head -1 | xargs -I{} cp {} dist-qt/${DIRNAME}/
           tar czf dist/VoidCoin-${VERSION}-Linux-Qt-x86_64.tar.gz -C dist-qt ${DIRNAME}
 
       - name: Build .deb package
@@ -143,7 +144,7 @@ jobs:
       - name: Build depends for Windows
         run: |
           cd depends
-          make HOST=x86_64-w64-mingw32 -j$(nproc)
+          make HOST=x86_64-w64-mingw32 -j$(nproc) CXX_STD=c++20
         timeout-minutes: 90
 
       - name: Build Windows binaries
@@ -152,7 +153,9 @@ jobs:
             --toolchain depends/x86_64-w64-mingw32/toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_STANDARD=20 \
-            -DBUILD_GUI=ON
+            -DCMAKE_CXX_EXTENSIONS=OFF \
+            -DBUILD_GUI=ON \
+            -DCMAKE_CXX_FLAGS="-std=c++20" 
           cmake --build build-win -j$(nproc)
 
       - name: Package Windows CLI zip
