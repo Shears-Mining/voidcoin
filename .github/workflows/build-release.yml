@@ -135,7 +135,7 @@ jobs:
       - name: Build depends for Windows
         run: |
           cd depends
-          make HOST=x86_64-w64-mingw32 -j$(nproc) NO_QT=0 NO_QR=0
+          make HOST=x86_64-w64-mingw32 -j$(nproc)
         timeout-minutes: 90
 
       - name: Build Windows binaries
