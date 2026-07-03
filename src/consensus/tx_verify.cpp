@@ -10,7 +10,6 @@
 #include <coins.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
-#include <consensus/devfund.h>
 #include <consensus/validation.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
@@ -193,22 +192,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, TxValidationState& state, 
          * This makes the dev fund locked by consensus, not by wallet policy
          * or developer promises.
          */
-        const int voidcoin_devfund_unlock_height = VoidCoinDevFundUnlockHeightForCoin(prevout, coin);
-        if (voidcoin_devfund_unlock_height > 0) {
-            if (nSpendHeight < voidcoin_devfund_unlock_height) {
-                return state.Invalid(
-                    TxValidationResult::TX_PREMATURE_SPEND,
-                    "bad-txns-premature-devfund-spend",
-                    strprintf(
-                        "tried to spend VoidCoin dev fund output before unlock height %d",
-                        voidcoin_devfund_unlock_height
-                    )
-                );
-            }
-        } else if (coin.IsCoinBase() && nSpendHeight - coin.nHeight < COINBASE_MATURITY) {
-            return state.Invalid(TxValidationResult::TX_PREMATURE_SPEND, "bad-txns-premature-spend-of-coinbase",
-                strprintf("tried to spend coinbase at depth %d", nSpendHeight - coin.nHeight));
-        }
+        
 
         // Check for negative or overflow input values
         nValueIn += coin.out.nValue;
