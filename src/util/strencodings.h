@@ -430,7 +430,11 @@ template <util::detail::Hex str>
 constexpr auto operator""_hex() { return str.bytes; }
 
 template <util::detail::Hex str>
-constexpr auto operator""_hex_u8() { return std::bit_cast<std::array<uint8_t, str.bytes.size()>>(str.bytes); }
+auto operator""_hex_u8() {
+    std::array<uint8_t, str.bytes.size()> result;
+    std::memcpy(result.data(), str.bytes.data(), str.bytes.size());
+    return result;
+}
 
 template <util::detail::Hex str>
 constexpr auto operator""_hex_v() { return std::vector<std::byte>{str.bytes.begin(), str.bytes.end()}; }

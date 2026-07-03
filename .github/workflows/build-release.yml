@@ -89,7 +89,7 @@ jobs:
           mkdir -p ${PKGDIR}/usr/share/applications
           mkdir -p ${PKGDIR}/usr/share/pixmaps
           mkdir -p ${PKGDIR}/usr/share/doc/voidcoin
-          cp build-qt/src/qt/voidcoin-qt ${PKGDIR}/usr/bin/
+          find build-qt -name 'voidcoin-qt' -type f | head -1 | xargs -I{} cp {} ${PKGDIR}/usr/bin/
           cp build-cli/src/voidcoind build-cli/src/voidcoin-cli \
              build-cli/src/voidcoin-wallet ${PKGDIR}/usr/bin/
           cp share/pixmaps/voidcoin128.png ${PKGDIR}/usr/share/pixmaps/voidcoin.png
