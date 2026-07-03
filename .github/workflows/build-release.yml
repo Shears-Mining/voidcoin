@@ -45,6 +45,8 @@ jobs:
           cmake -B build-cli -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF \
             -DWITH_ZMQ=ON -DWITH_MINIUPNPC=ON -DWITH_NATPMP=ON
           cmake --build build-cli -j$(nproc)
+          echo "=== Build output ==="
+          find build-cli/src -maxdepth 1 -type f -executable | head -20
 
       - name: Build Qt wallet
         run: |
@@ -57,9 +59,15 @@ jobs:
           VERSION=${{ needs.get-version.outputs.version }}
           DIRNAME="VoidCoin-${VERSION}-Linux"
           mkdir -p dist/${DIRNAME}
-          cp build-cli/src/voidcoind build-cli/src/voidcoin-cli \
-             build-cli/src/voidcoin-tx build-cli/src/voidcoin-util \
-             build-cli/src/voidcoin-wallet dist/${DIRNAME}/
+          # Find binaries - they may be in src/ or bin/
+          for bin in voidcoind voidcoin-cli voidcoin-tx voidcoin-util voidcoin-wallet; do
+            found=$(find build-cli -name "$bin" -type f | head -1)
+            if [ -n "$found" ]; then
+              cp "$found" dist/${DIRNAME}/
+            else
+              echo "WARNING: $bin not found"
+            fi
+          done
           tar czf dist/VoidCoin-${VERSION}-Linux-x86_64.tar.gz -C dist ${DIRNAME}
 
       - name: Package Linux Qt tar.gz
@@ -143,6 +151,7 @@ jobs:
           cmake -B build-win \
             --toolchain depends/x86_64-w64-mingw32/toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=20 \
             -DBUILD_GUI=ON
           cmake --build build-win -j$(nproc)
 
