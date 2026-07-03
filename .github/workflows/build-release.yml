@@ -44,8 +44,7 @@ jobs:
         run: |
           cmake -B build-cli -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF \
             -DWITH_ZMQ=ON -DWITH_MINIUPNPC=ON -DWITH_NATPMP=ON
-          cmake --build build-cli -j$(nproc) 2>&1 | tail -50
-          cmake --build build-cli -- -k 0 2>&1 | grep "error:" | head -20 || true
+          cmake --build build-cli -j1 2>&1 | grep -E 'error:|Error' | grep -v 'gmake\[' | head -30 || cmake --build build-cli -j1
           echo "=== Build output ==="
           find build-cli/src -maxdepth 1 -type f -executable | head -20
 
