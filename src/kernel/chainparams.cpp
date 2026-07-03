@@ -146,6 +146,7 @@ public:
 
         vSeeds.clear();
         vSeeds.emplace_back("seed1.voidcoin.crypto-eire.com.");
+        vSeeds.emplace_back("seed.void-coin.net.");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,70);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
@@ -156,7 +157,7 @@ public:
         bech32_hrp = "void";
         bech32_qr_hrp = "vqr";
 
-        vFixedSeeds.clear();
+        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
 
         fDefaultConsistencyChecks = false;
         m_is_mockable_chain = false;
