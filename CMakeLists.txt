@@ -49,7 +49,7 @@ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
 project(VoidCoinCore
   VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
   DESCRIPTION "VoidCoin client software"
-  HOMEPAGE_URL "https://VoidCoin.org/"
+  HOMEPAGE_URL "https://www.void-coin.net"
   LANGUAGES NONE
 )
 
