@@ -118,6 +118,7 @@ public:
     const std::vector<unsigned char>& Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
     const std::string& Bech32HRP() const { return bech32_hrp; }
     const std::string& Bech32QRHRP() const { return bech32_qr_hrp; }
+    const std::string& Bech32QRTTimelockHRP() const { return bech32_qrt_hrp; }
     const std::vector<uint8_t>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
 
@@ -177,6 +178,7 @@ protected:
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string bech32_hrp;
     std::string bech32_qr_hrp;
+    std::string bech32_qrt_hrp; //!< P2QR-TIMELOCK bech32 HRP (vqt/tnqt/bcrtqt)
     ChainType m_chain_type;
     CBlock genesis;
     std::vector<uint8_t> vFixedSeeds;

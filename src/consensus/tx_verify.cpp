@@ -5,6 +5,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <consensus/tx_verify.h>
+#include <script/solver.h>
 
 #include <chain.h>
 #include <coins.h>

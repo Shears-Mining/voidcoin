@@ -46,6 +46,11 @@ constexpr bool IsPushdataOp(opcodetype opcode)
 }
 
 static constexpr unsigned int VOIDCOIN_P2QR_PROGRAM_SIZE = 32;
+//! Extra 4 bytes appended to P2QR script for the lockheight (little-endian uint32)
+static constexpr unsigned int VOIDCOIN_P2QR_TIMELOCK_SIZE = 4;
+//! Total scriptPubKey size for P2QR-TIMELOCK: opcode(1) + len(1) + program(32) + lockheight(4) = 38
+static constexpr unsigned int VOIDCOIN_P2QR_TIMELOCK_SCRIPT_SIZE =
+    2 + VOIDCOIN_P2QR_PROGRAM_SIZE + VOIDCOIN_P2QR_TIMELOCK_SIZE;
 
 // Native VOID quantum-resistant output marker.
 // Old nodes execute OP_RESERVED and fail closed.
