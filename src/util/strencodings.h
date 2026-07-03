@@ -430,9 +430,13 @@ template <util::detail::Hex str>
 constexpr auto operator""_hex() { return str.bytes; }
 
 template <util::detail::Hex str>
-auto operator""_hex_u8() {
-    std::array<uint8_t, str.bytes.size()> result;
-    std::memcpy(result.data(), str.bytes.data(), str.bytes.size());
+constexpr auto operator""_hex_u8() {
+    // std::bit_cast requires GCC 11+ / C++20 full support.
+    // Use manual copy for compatibility with GCC 10 (MinGW cross-compiler).
+    std::array<uint8_t, str.bytes.size()> result{};
+    for (std::size_t i = 0; i < str.bytes.size(); ++i) {
+        result[i] = static_cast<uint8_t>(str.bytes[i]);
+    }
     return result;
 }
 
