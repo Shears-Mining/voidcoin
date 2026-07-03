@@ -90,8 +90,10 @@ jobs:
           mkdir -p ${PKGDIR}/usr/share/pixmaps
           mkdir -p ${PKGDIR}/usr/share/doc/voidcoin
           find build-qt -name 'voidcoin-qt' -type f | head -1 | xargs -I{} cp {} ${PKGDIR}/usr/bin/
-          cp build-cli/src/voidcoind build-cli/src/voidcoin-cli \
-             build-cli/src/voidcoin-wallet ${PKGDIR}/usr/bin/
+          for bin in voidcoind voidcoin-cli voidcoin-wallet; do
+            found=$(find build-cli -name "$bin" -type f | head -1)
+            if [ -n "$found" ]; then cp "$found" ${PKGDIR}/usr/bin/; fi
+          done
           cp share/pixmaps/voidcoin128.png ${PKGDIR}/usr/share/pixmaps/voidcoin.png
           cat > ${PKGDIR}/usr/share/applications/voidcoin-qt.desktop << EOF
           [Desktop Entry]
@@ -159,8 +161,8 @@ jobs:
             -DCMAKE_CXX_STANDARD=20 \
             -DCMAKE_CXX_EXTENSIONS=OFF \
             -DBUILD_GUI=ON \
-            -DCMAKE_CXX_FLAGS="-std=c++20" 
-          cmake --build build-win -j$(nproc)
+            -DCMAKE_CXX_FLAGS="-std=c++20"
+          cmake --build build-win -j$(nproc) 2>&1 | grep -E "^.*error:|fatal error:" | grep -v "^--" | head -30 || cmake --build build-win -j1 2>&1 | tail -50
 
       - name: Package Windows CLI zip
         run: |
