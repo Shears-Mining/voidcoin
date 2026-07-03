@@ -240,29 +240,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: VoidCoin Core v${{ steps.version.outputs.version }}
-          body: |
-            ## VoidCoin Core v${{ steps.version.outputs.version }}
-
-            ### Downloads
-            | Platform | File |
-            |----------|------|
-            | Linux CLI | VoidCoin-${{ steps.version.outputs.version }}-Linux-x86_64.tar.gz |
-            | Linux Qt Wallet | VoidCoin-${{ steps.version.outputs.version }}-Linux-Qt-x86_64.tar.gz |
-            | Linux .deb (Ubuntu/Debian) | VoidCoin-${{ steps.version.outputs.version }}-linux-amd64.deb |
-            | Windows CLI | VoidCoin-${{ steps.version.outputs.version }}-Windows-x86_64.zip |
-
-            ### Quick Start (Linux)
-```bash
-            tar -xzf VoidCoin-${{ steps.version.outputs.version }}-Linux-x86_64.tar.gz
-            cd VoidCoin-${{ steps.version.outputs.version }}-Linux
-            ./voidcoind -daemon -addnode=46.7.7.113:7777
-```
-
-            ### Quick Start (Ubuntu .deb)
-```bash
-            sudo dpkg -i VoidCoin-${{ steps.version.outputs.version }}-linux-amd64.deb
-            voidcoin-qt
-```
+          body: "VoidCoin Core release — see https://www.void-coin.net"
           files: |
             artifacts/linux-binaries/VoidCoin-*-Linux-x86_64.tar.gz
             artifacts/linux-binaries/VoidCoin-*-Linux-Qt-x86_64.tar.gz
