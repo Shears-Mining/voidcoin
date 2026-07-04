@@ -73,28 +73,32 @@ Emergency Mode deactivates once block times return within **150%** of the 60-sec
 
 ## Pillar 3 — Heisenberg Uncertainty Cap
 
-The maximum difficulty adjustment per block is not a fixed value. It is derived deterministically from the lowest 8 bits of the previous block's hash:
-uncertainty_bits = prevBlockHash & 0xFF
-uncertainty_cap  = 0.12 + (uncertainty_bits / 255.0) × 0.08
-This produces a cap between **12% and 20%** per block adjustment, inclusive.
 
-The cap is verifiable by every full node but **unknowable to any miner before they solve the block** — because the block hash cannot be predicted without performing the proof of work.
+ The maximum difficulty adjustment per block is not a fixed value. It is derived deterministically from bytes spread across the full 256-bit hash:
+ uncertainty_bits = prevBlockHash[0] XOR prevBlockHash[8] XOR prevBlockHash[16] XOR prevBlockHash[24]
+ uncertainty_cap  = 0.12 + (uncertainty_bits / 255.0) × 0.08
+ This produces a cap between **12% and 20%** per block adjustment, inclusive.
 
-**The consequence:** An attacker cannot pre-calculate exactly how many blocks they need to mine to push difficulty to a specific target. The uncertainty is baked into the protocol at the quantum level — named after Heisenberg's Uncertainty Principle, which states that certain properties of a system cannot be known simultaneously with precision.
+ Bytes are sampled from four evenly-spaced positions across the full 256-bit hash. Grinding a single byte to a target value is trivial. Grinding four spread bytes simultaneously to a combined XOR target is computationally equivalent to solving an additional proof of work — the attacker cannot selectively manipulate the cap without effectively re-mining the block.
 
-In Emergency Mode, the uncertainty cap **doubles** — allowing faster correction when the chain is under attack.
+ The cap is verifiable by every full node but **unknowable to any miner before they solve the block** — because the block hash cannot be predicted without performing the proof of work.
+
+ **The consequence:** An attacker cannot pre-calculate exactly how many blocks they need to mine to push difficulty to a specific target. The uncertainty is baked into the protocol at the quantum level — named after Heisenberg's Uncertainty Principle.
 
 ---
 
 ## Pillar 4 — Dead Zone Recovery
 
-If no block is found for **10 minutes** (10× the target block time), the chain enters the Dead Zone:
+ If no block is found for **10 minutes** (10× the target block time), the chain enters the Dead Zone:
 
-- **At 10 minutes:** difficulty drops 50% immediately
-- **At 20 minutes:** difficulty drops another 50%
-- **At 30 minutes:** difficulty drops another 50%
+ - **At 10 minutes:** difficulty reduced via asymmetric throttle (~30% reduction)
+ - **At 20 minutes:** additional asymmetric reduction (~51% cumulative)
+ - **At 30 minutes:** additional asymmetric reduction (~66% cumulative)
+ - **Hard cap:** total reduction never exceeds 75% regardless of elapsed time
 
-Each drop is applied as soon as the next block arrives and the elapsed time is verified. The Dead Zone exits the moment a valid block is found and normal QUD calculation resumes from that point.
+ Each drop is applied asymmetrically at 60% speed (same as Pillar 7) and hard-capped at 75% maximum difficulty reduction. This prevents weaponisation: an attacker cannot spike difficulty then withdraw to exploit a catastrophic dead zone crash. The chain recovers from genuine stalls while remaining resistant to hit-and-run manipulation.
+
+ The Dead Zone exits the moment a valid block is found and normal QUD calculation resumes.
 
 ---
 
