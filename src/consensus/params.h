@@ -103,6 +103,8 @@ struct Params {
      * Examples: 1916 for 95%, 1512 for testchains.
      */
     int nP2QRActivationHeight{1};
+    /** Block height at which P2QR-TIMELOCK (vqt addresses) become active */
+    int nP2QRTimelockActivationHeight{10000};
      
     uint32_t nRuleChangeActivationThreshold;
     uint32_t nMinerConfirmationWindow;

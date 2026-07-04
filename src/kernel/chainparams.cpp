@@ -105,6 +105,7 @@ public:
         consensus.MinBIP9WarningHeight = 2500;
 
         consensus.nP2QRActivationHeight = 1;
+        consensus.nP2QRTimelockActivationHeight = 10000;
 
         consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 24 * 60 * 60;
@@ -156,6 +157,7 @@ public:
 
         bech32_hrp = "void";
         bech32_qr_hrp = "vqr";
+        bech32_qrt_hrp = "vqt";
 
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
 
@@ -200,6 +202,7 @@ public:
         consensus.CSVHeight = 235;
         consensus.SegwitHeight = 240;
         consensus.nP2QRActivationHeight = 5;
+        consensus.nP2QRTimelockActivationHeight = 10;
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
@@ -252,6 +255,7 @@ public:
 
         bech32_hrp = "tn";
         bech32_qr_hrp = "tnqr";
+        bech32_qrt_hrp = "tnqt";
 
         
 
@@ -387,6 +391,7 @@ public:
 
         bech32_hrp = "tb";
         bech32_qr_hrp = "tbqr";
+        bech32_qrt_hrp = "tbqt";
         
         fDefaultConsistencyChecks = false;
         m_is_mockable_chain = false;
@@ -414,6 +419,7 @@ public:
         consensus.SegwitHeight = 0; // Always active unless overridden
         consensus.MinBIP9WarningHeight = 0;
         consensus.nP2QRActivationHeight = 0;
+        consensus.nP2QRTimelockActivationHeight = 0;
         consensus.powLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
@@ -526,6 +532,7 @@ public:
 
         bech32_hrp = "bcrt";
         bech32_qr_hrp = "bcrtqr";
+        bech32_qrt_hrp = "bcrtqt";
     }
 };
 

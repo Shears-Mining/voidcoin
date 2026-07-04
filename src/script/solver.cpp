@@ -30,6 +30,7 @@ std::string GetTxnOutputType(TxoutType t)
     case TxoutType::WITNESS_V1_TAPROOT: return "witness_v1_taproot";
     case TxoutType::WITNESS_UNKNOWN: return "witness_unknown";
     case TxoutType::VOIDCOIN_P2QR: return "voidcoin_p2qr";
+    case TxoutType::VOIDCOIN_P2QR_TIMELOCK: return "voidcoin_p2qr_timelock";
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -193,6 +194,24 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
             scriptPubKey.end()
         ));
         return TxoutType::VOIDCOIN_P2QR;
+    }
+    // VOIDCOIN_P2QR_TIMELOCK detection:
+    //   byte 0:    OP_QuantumQuark (0x50)
+    //   byte 1:    0x20 (32 = program length)
+    //   bytes 2-33: 32-byte ML-DSA-87 pubkey commitment
+    //   bytes 34-37: 4-byte little-endian lockheight
+    if (scriptPubKey.size() == VOIDCOIN_P2QR_TIMELOCK_SCRIPT_SIZE &&
+        scriptPubKey[0] == OP_VOIDCOIN_P2QR &&
+        scriptPubKey[1] == VOIDCOIN_P2QR_PROGRAM_SIZE) {
+        // Push program hash (bytes 2..33)
+        vSolutionsRet.push_back(std::vector<unsigned char>(
+            scriptPubKey.begin() + 2,
+            scriptPubKey.begin() + 2 + VOIDCOIN_P2QR_PROGRAM_SIZE));
+        // Push lockheight bytes (bytes 34..37)
+        vSolutionsRet.push_back(std::vector<unsigned char>(
+            scriptPubKey.begin() + 2 + VOIDCOIN_P2QR_PROGRAM_SIZE,
+            scriptPubKey.end()));
+        return TxoutType::VOIDCOIN_P2QR_TIMELOCK;
     }
 
     // Provably prunable, data-carrying output
