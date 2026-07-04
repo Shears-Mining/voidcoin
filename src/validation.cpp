@@ -2247,39 +2247,43 @@ PackageMempoolAcceptResult ProcessNewPackage(Chainstate& active_chainstate, CTxM
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     /*
-     * VoidCoin monetary policy:
+     * VoidCoin monetary policy (VCIP-2):
      *
      * Height 0:
-     *   Genesis block.
+     *   Genesis block — zero subsidy.
      *
-     * Height 1:
-     *   One-time consensus dev fund allocation:
-     *   21,000,000 VOID.
+     * Height 1 onward:
+     *   Normal mining subsidy: 50 VOID per block.
+     *   Halves every 2,100,000 blocks (~4 years at 1 min/block).
      *
-     * Height 2 onward:
-     *   Normal mining subsidy begins at 50 VOID.
+     * Tail Emission (VCIP-2):
+     *   When halvings exhaust the subsidy, a permanent floor of
+     *   0.1 VOID per block ensures miners are always incentivised.
      *
-     * This preserves:
-     *   210,000,000 VOID mineable emission
-     *   + 21,000,000 VOID consensus dev fund
-     *   = 231,000,000 VOID max supply.
+     * Void Collapse Bounty Block (VCIP-2):
+     *   ~1 in 500 blocks pays 200 VOID. Hash-triggered in miner.cpp.
+     *   Disabled when remaining supply <= 200 VOID and during tail emission.
+     *
+     * Max supply: 231,000,000 VOID
      */
-    // Dev fund subsidy removed
-
-    // Dev fund removed
-
     const int adjusted_height = nHeight - 1;
     int halvings = adjusted_height / consensusParams.nSubsidyHalvingInterval;
 
-    // Force block reward to zero when right shift is undefined.
+    // Tail Emission Floor (VCIP-2)
+    // After all halvings, 0.1 VOID/block permanently incentivises miners
     if (halvings >= 64) {
-        return 0;
+        return static_cast<CAmount>(0.1 * COIN);
     }
 
     CAmount nSubsidy = 50 * COIN;
-
-    // VoidCoin normal mining subsidy halves every 2,100,000 one-minute blocks.
+    // Halves every 2,100,000 one-minute blocks
     nSubsidy >>= halvings;
+
+    // Safety: if subsidy rounds to zero, apply tail emission floor
+    if (nSubsidy == 0) {
+        return static_cast<CAmount>(0.1 * COIN);
+    }
+
     return nSubsidy;
 }
 
@@ -3166,10 +3170,39 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
              Ticks<SecondsDouble>(m_chainman.time_connect),
              Ticks<MillisecondsDouble>(m_chainman.time_connect) / m_chainman.num_blocks_total);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, params.GetConsensus());
+    // VCIP-2: Void Collapse Bounty Block
+    // ~1 in 500 blocks pays 200 VOID instead of normal subsidy.
+    // Triggered by first 3 bytes of block hash — unknowable before PoW solved.
+    // Disabled during tail emission and within 200 VOID of supply cap.
+    static constexpr uint32_t VOID_BOUNTY_THRESHOLD = 33554; // ~1 in 500
+    static constexpr CAmount  VOID_BOUNTY_REWARD    = 200 * COIN;
+    static constexpr CAmount  VOID_BOUNTY_SHUTDOWN  = 200 * COIN; // disable within 200 VOID of cap
+
+    CAmount baseSubsidy = GetBlockSubsidy(pindex->nHeight, params.GetConsensus());
+    bool isTailEmission = (baseSubsidy == static_cast<CAmount>(0.1 * COIN) &&
+                           pindex->nHeight > params.nSubsidyHalvingInterval);
+
+    CAmount blockReward = nFees + baseSubsidy;
+
+    // Check for Void Collapse Bounty Block
+    if (!isTailEmission && pindex->nHeight >= params.nQUDActivationHeight) {
+        const uint256& blockHash = pindex->GetBlockHash();
+        const uint8_t* hashData = blockHash.GetDataPtr();
+        uint32_t bountyValue = ((uint32_t)hashData[0] << 16)
+                             | ((uint32_t)hashData[1] << 8)
+                             |  (uint32_t)hashData[2];
+        if (bountyValue < VOID_BOUNTY_THRESHOLD) {
+            // Bounty triggered — allow 200 VOID coinbase
+            blockReward = nFees + VOID_BOUNTY_REWARD;
+            LogPrintf("VCIP-2: Void Collapse Bounty Block at height %d! Reward: 200 VOID\n",
+                      pindex->nHeight);
+        }
+    }
+
     if (block.vtx[0]->GetValueOut() > blockReward && state.IsValid()) {
         state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-amount",
-                      strprintf("coinbase pays too much (actual=%d vs limit=%d)", block.vtx[0]->GetValueOut(), blockReward));
+                      strprintf("coinbase pays too much (actual=%d vs limit=%d)",
+                                block.vtx[0]->GetValueOut(), blockReward));
     }
 
     auto parallel_result = control.Complete();

@@ -105,6 +105,7 @@ public:
         consensus.MinBIP9WarningHeight = 2500;
 
         consensus.nP2QRActivationHeight = 1;
+        consensus.nQUDActivationHeight = 6000;
 
         consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 24 * 60 * 60;
@@ -200,6 +201,7 @@ public:
         consensus.CSVHeight = 235;
         consensus.SegwitHeight = 240;
         consensus.nP2QRActivationHeight = 5;
+        consensus.nQUDActivationHeight = 100;
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
@@ -414,6 +416,7 @@ public:
         consensus.SegwitHeight = 0; // Always active unless overridden
         consensus.MinBIP9WarningHeight = 0;
         consensus.nP2QRActivationHeight = 0;
+        consensus.nQUDActivationHeight = 0;
         consensus.powLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
