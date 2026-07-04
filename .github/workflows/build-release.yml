@@ -169,7 +169,7 @@ jobs:
           VERSION=${{ needs.get-version.outputs.version }}
           DIRNAME="VoidCoin-${VERSION}-Windows"
           mkdir -p dist-win/${DIRNAME}
-          find build-win/src -name "*.exe" | xargs -I{} cp {} dist-win/${DIRNAME}/ 2>/dev/null || true
+          find build-win -name "*.exe" | xargs -I{} cp {} dist-win/${DIRNAME}/ 2>/dev/null || true
           cd dist-win
           zip -r VoidCoin-${VERSION}-Windows-x86_64.zip ${DIRNAME}/
 
@@ -178,8 +178,8 @@ jobs:
           VERSION=${{ needs.get-version.outputs.version }}
           DIRNAME="VoidCoin-${VERSION}-Windows-Qt"
           mkdir -p dist-win-qt/${DIRNAME}
-          find build-win/src/qt -name "*.exe" | xargs -I{} cp {} dist-win-qt/${DIRNAME}/ 2>/dev/null || true
-          find build-win/src -maxdepth 1 -name "*.exe" | xargs -I{} cp {} dist-win-qt/${DIRNAME}/ 2>/dev/null || true
+          find build-win -name "voidcoin-qt.exe" | xargs -I{} cp {} dist-win-qt/${DIRNAME}/ 2>/dev/null || true
+          find build-win -name "voidcoind.exe" -o -name "voidcoin-cli.exe" | xargs -I{} cp {} dist-win-qt/${DIRNAME}/ 2>/dev/null || true
           cd dist-win-qt
           zip -r VoidCoin-${VERSION}-Windows-Qt-x86_64.zip ${DIRNAME}/
 
