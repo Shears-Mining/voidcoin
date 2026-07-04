@@ -52,7 +52,7 @@ jobs:
         run: |
           cmake -B build-qt -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=ON \
             -DWITH_ZMQ=ON -DWITH_MINIUPNPC=ON -DWITH_NATPMP=ON
-          cmake --build build-qt -j$(nproc)
+          cmake --build build-qt -j$(nproc) || cmake --build build-qt -j1 2>&1 | grep -E "^.*error:" | grep -v "gmake" | head -20
 
       - name: Package Linux CLI tar.gz
         run: |
