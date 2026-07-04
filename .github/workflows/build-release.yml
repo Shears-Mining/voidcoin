@@ -166,33 +166,33 @@ jobs:
 
       - name: Package Windows CLI zip
         run: |
-        VERSION=${{ needs.get-version.outputs.version }}
-        DIRNAME="VoidCoin-${VERSION}-Windows"
-        mkdir -p dist-win/${DIRNAME}
-        echo "=== All exe files ==="
-        find build-win -name "*.exe" -ls
-        for bin in voidcoind voidcoin-cli voidcoin-tx voidcoin-wallet voidcoin-util; do
-        found=$(find build-win -name "${bin}.exe" | head -1)
-        if [ -n "$found" ]; then cp "$found" dist-win/${DIRNAME}/${bin}.exe; fi
-        done
-        ls -la dist-win/${DIRNAME}/
-        cd dist-win && zip -r VoidCoin-${VERSION}-Windows-x86_64.zip ${DIRNAME}/
+          VERSION=${{ needs.get-version.outputs.version }}
+          DIRNAME="VoidCoin-${VERSION}-Windows"
+          mkdir -p dist-win/${DIRNAME}
+          echo "=== All exe files ==="
+          find build-win -name "*.exe" -ls
+          for bin in voidcoind voidcoin-cli voidcoin-tx voidcoin-wallet voidcoin-util; do
+          found=$(find build-win -name "${bin}.exe" | head -1)
+          if [ -n "$found" ]; then cp "$found" dist-win/${DIRNAME}/${bin}.exe; fi
+          done
+          ls -la dist-win/${DIRNAME}/
+          cd dist-win && zip -r VoidCoin-${VERSION}-Windows-x86_64.zip ${DIRNAME}/
 
       - name: Package Windows Qt zip
         run: |
-        VERSION=${{ needs.get-version.outputs.version }}
-        DIRNAME="VoidCoin-${VERSION}-Windows-Qt"
-        mkdir -p dist-win-qt/${DIRNAME}
-        for bin in voidcoin-qt voidcoind voidcoin-cli; do
-        found=$(find build-win -name "${bin}.exe" | head -1)
-        if [ -n "$found" ]; then cp "$found" dist-win-qt/${DIRNAME}/${bin}.exe; fi
-        done
-        ls -la dist-win-qt/${DIRNAME}/
-        cd dist-win-qt && zip -r VoidCoin-${VERSION}-Windows-Qt-x86_64.zip ${DIRNAME}/
+          VERSION=${{ needs.get-version.outputs.version }}
+          DIRNAME="VoidCoin-${VERSION}-Windows-Qt"
+          mkdir -p dist-win-qt/${DIRNAME}
+          for bin in voidcoin-qt voidcoind voidcoin-cli; do
+          found=$(find build-win -name "${bin}.exe" | head -1)
+          if [ -n "$found" ]; then cp "$found" dist-win-qt/${DIRNAME}/${bin}.exe; fi
+          done
+          ls -la dist-win-qt/${DIRNAME}/
+          cd dist-win-qt && zip -r VoidCoin-${VERSION}-Windows-Qt-x86_64.zip ${DIRNAME}/
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
+          uses: actions/upload-artifact@v4
+          with:
         name: windows-binaries
         path: |
         dist-win/VoidCoin-*-Windows-x86_64.zip
