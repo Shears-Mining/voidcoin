@@ -35,6 +35,10 @@ enum class TxoutType {
     //! Native VoidCoin quantum-resistant output.
     //! Not witness. Not OP_RETURN.
     VOIDCOIN_P2QR,
+    //! Native VoidCoin quantum-resistant time-locked output (VCIP-1).
+    //! scriptPubKey: OP_QuantumQuark <32-byte-program> <4-byte-lockheight-LE>
+    //! Mainnet address HRP: vqt  Testnet: tnqt
+    VOIDCOIN_P2QR_TIMELOCK,
 };
 
 /** Get the name of a TxoutType as a string */
