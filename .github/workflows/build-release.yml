@@ -187,10 +187,6 @@ jobs:
             dist-win/VoidCoin-*-Windows-x86_64.zip
             dist-win-qt/VoidCoin-*-Windows-Qt-x86_64.zip
 
-name: Build Release Binaries
-
-on:
-
   release:
     name: Create GitHub Release
     needs: [get-version, build-linux, build-windows]
@@ -203,7 +199,6 @@ on:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
