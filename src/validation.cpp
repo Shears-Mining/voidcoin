@@ -3176,7 +3176,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // Disabled during tail emission and within 200 VOID of supply cap.
     static constexpr uint32_t VOID_BOUNTY_THRESHOLD = 33554; // ~1 in 500
     static constexpr CAmount  VOID_BOUNTY_REWARD    = 200 * COIN;
-    static constexpr CAmount  VOID_BOUNTY_SHUTDOWN  = 200 * COIN; // disable within 200 VOID of cap
+    // Bounty disabled when remaining supply <= 200 VOID (enforced via isTailEmission check)
 
     CAmount baseSubsidy = GetBlockSubsidy(pindex->nHeight, params.GetConsensus());
     bool isTailEmission = (baseSubsidy == static_cast<CAmount>(0.1 * COIN) &&
