@@ -188,7 +188,12 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
 
         coinbaseTx.vout.resize(1);
         coinbaseTx.vout[0].scriptPubKey = m_options.coinbase_output_script;
+        // VCIP-2: Base subsidy (Void Collapse Bounty checked at validation time)
+        // Miner sets normal subsidy — bounty is verified by all nodes from block hash
         coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+        // Note: If this block happens to be a Void Collapse Bounty Block,
+        // the miner may claim 200 VOID. Nodes will accept it if hash qualifies.
+        // Miners check IsVoidCollapseBountyBlock() before finalising coinbase.
         pblocktemplate->vTxFees[0] = -nFees;
 
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));

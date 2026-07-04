@@ -105,6 +105,8 @@ struct Params {
     int nP2QRActivationHeight{1};
     /** Block height at which P2QR-TIMELOCK (vqt addresses) become active */
     int nP2QRTimelockActivationHeight{10000};
+    /** Block height at which QUD difficulty algorithm activates (VCIP-2) */
+    int nQUDActivationHeight{6000};
      
     uint32_t nRuleChangeActivationThreshold;
     uint32_t nMinerConfirmationWindow;
