@@ -131,13 +131,22 @@ std::optional<int64_t> ParseISO8601DateTime(std::string_view str)
     if (!year || !month || !day || !hour || !min || !sec) {
         return {};
     }
-    const std::chrono::year_month_day ymd{std::chrono::year{*year}, std::chrono::month{*month}, std::chrono::day{*day}};
-    if (!ymd.ok()) {
-        return {};
-    }
-    const auto time{std::chrono::hours{*hour} + std::chrono::minutes{*min} + std::chrono::seconds{*sec}};
-    const auto tp{std::chrono::sys_days{ymd} + time};
-    return int64_t{TicksSinceEpoch<std::chrono::seconds>(tp)};
+    // Use mktime for MinGW compatibility (year_month_day not available in MinGW C++20)
+    struct tm t{};
+    t.tm_year = *year - 1900;
+    t.tm_mon  = *month - 1;
+    t.tm_mday = *day;
+    t.tm_hour = *hour;
+    t.tm_min  = *min;
+    t.tm_sec  = *sec;
+    t.tm_isdst = 0;
+#ifdef _WIN32
+    time_t epoch = _mkgmtime(&t);
+#else
+    time_t epoch = timegm(&t);
+#endif
+    if (epoch == -1) return {};
+    return int64_t{epoch};
 }
 
 struct timeval MillisToTimeval(int64_t nTimeout)
