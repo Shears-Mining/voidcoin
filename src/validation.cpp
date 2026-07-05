@@ -3187,10 +3187,11 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // Check for Void Collapse Bounty Block
     if (!isTailEmission && pindex->nHeight >= 6000) {
         const uint256& blockHash = pindex->GetBlockHash();
+        // Use bytes from end of hash (leading bytes are always 0 due to PoW)
         const unsigned char* hashData = blockHash.begin();
-        uint32_t bountyValue = ((uint32_t)hashData[0] << 16)
-                             | ((uint32_t)hashData[1] << 8)
-                             |  (uint32_t)hashData[2];
+        uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
+                             | ((uint32_t)hashData[30] << 8)
+                             |  (uint32_t)hashData[31];
         if (bountyValue < VOID_BOUNTY_THRESHOLD) {
             // Bounty triggered — allow 200 VOID coinbase
             blockReward = nFees + VOID_BOUNTY_REWARD;
