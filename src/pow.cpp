@@ -230,44 +230,7 @@ static unsigned int VoidCoinQUD(const CBlockIndex* pindexLast,
 
     // --------------------------------------------------------
     // Pillar 4: Dead Zone Recovery
-    // --------------------------------------------------------
-    // Pillar 4: Dead Zone Recovery (attack-hardened)
-    // Dead zone reductions are subject to asymmetric throttle (60% speed)
-    // and hard-capped at 75% total reduction (4x target multiplier max).
-    // This prevents hit-and-run attacks where an attacker mines to spike
-    // difficulty then withdraws to exploit the dead zone drop.
-    int64_t elapsed = nCurrentTime - pindexLast->GetBlockTime();
-    if (elapsed > QUD_DEAD_ZONE_1) {
-        arith_uint256 bnCurrent;
-        bool fNeg = false, fOver = false;
-        bnCurrent.SetCompact(pindexLast->nBits, &fNeg, &fOver);
-        if (fNeg || fOver) return bnPowLimit.GetCompact();
-
-        // Calculate asymmetric reduction per tier
-        double reduction = 1.0;
-        if (elapsed > QUD_DEAD_ZONE_3) {
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 1
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 2
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 3
-        } else if (elapsed > QUD_DEAD_ZONE_2) {
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 1
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 2
-        } else {
-            reduction *= (1.0 - (0.5 * QUD_ASYMMETRIC_FACTOR)); // tier 1
-        }
-        // Hard cap: never reduce difficulty more than 75%
-        if (reduction < 0.25) reduction = 0.25;
-
-        // Target multiplier = 1/reduction (higher target = lower difficulty)
-        double targetMult = 1.0 / reduction;
-        if (targetMult > 4.0) targetMult = 4.0;
-
-        uint64_t multNum = (uint64_t)(targetMult * 1000000.0);
-        bnCurrent *= multNum;
-        bnCurrent /= 1000000ULL;
-        if (bnCurrent > bnPowLimit) bnCurrent = bnPowLimit;
-        return bnCurrent.GetCompact();
-    }
+    // Dead Zone Recovery disabled in v1.0.4 pending v1.0.4.1 fix
 
     // --------------------------------------------------------
     // Pillar 2: Emergency Mode detection
