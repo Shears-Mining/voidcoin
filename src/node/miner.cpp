@@ -194,7 +194,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
         CAmount subsidy = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
         bool isTailEmission = (subsidy == static_cast<CAmount>(0.1 * COIN));
         CAmount blockSubsidy = subsidy;
-        if (!isTailEmission && nHeight >= 6000 && pindexPrev) {
+        int nBountyActivation = chainparams.GetConsensus().fPowAllowMinDifficultyBlocks ? 10 : 6000;
+        if (!isTailEmission && nHeight >= nBountyActivation && pindexPrev) {
             const uint256& prevHash = pindexPrev->GetBlockHash();
             const unsigned char* hashData = prevHash.begin();
             uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
