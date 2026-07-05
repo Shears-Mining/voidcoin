@@ -907,8 +907,6 @@ static RPCHelpMan getblocktemplate()
 
     // Update nTime
     UpdateTime(&block, consensusParams, pindexPrev);
-    // QUD: always recalculate nBits using wall-clock time so Dead Zone applies correctly
-    block.nBits = GetNextWorkRequired(pindexPrev, &block, consensusParams);
     block.nNonce = 0;
 
     // NOTE: If at some point we support pre-segwit miners post-segwit-activation, this needs to take segwit support into consideration
