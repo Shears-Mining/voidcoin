@@ -13,6 +13,7 @@
 #include <chain.h>
 #include <primitives/block.h>
 #include <uint256.h>
+#include <util/time.h>
 #include <assert.h>
 #include <algorithm>
 #include <cmath>
@@ -365,7 +366,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast,
     if (params.fPowNoRetargeting) return pindexLast->nBits;
 
     if (pindexLast->nHeight >= params.nQUDActivationHeight) {
-        return VoidCoinQUD(pindexLast, params, pindexLast->GetBlockTime());
+        return VoidCoinQUD(pindexLast, params, TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()));
     }
     return VoidCoinDarkGravityWave(pindexLast, params);
 }
@@ -379,7 +380,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast,
     if (pindexLast == nullptr) return bnPowLimit.GetCompact();
     if (params.fPowNoRetargeting) return pindexLast->nBits;
 
-    int64_t nCurrentTime = pblock ? pblock->GetBlockTime() : pindexLast->GetBlockTime();
+    // QUD Dead Zone uses wall-clock time — block timestamps cannot trigger Dead Zone
+    int64_t nCurrentTime = TicksSinceEpoch<std::chrono::seconds>(NodeClock::now());
 
     if (pindexLast->nHeight + 1 >= params.nQUDActivationHeight) {
         return VoidCoinQUD(pindexLast, params, nCurrentTime);
