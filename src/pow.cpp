@@ -366,7 +366,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast,
     if (params.fPowNoRetargeting) return pindexLast->nBits;
 
     if (pindexLast->nHeight >= params.nQUDActivationHeight) {
-        return VoidCoinQUD(pindexLast, params, TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()));
+        return VoidCoinQUD(pindexLast, params, GetTime());
     }
     return VoidCoinDarkGravityWave(pindexLast, params);
 }
@@ -381,7 +381,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast,
     if (params.fPowNoRetargeting) return pindexLast->nBits;
 
     // QUD Dead Zone uses wall-clock time — block timestamps cannot trigger Dead Zone
-    int64_t nCurrentTime = TicksSinceEpoch<std::chrono::seconds>(NodeClock::now());
+    int64_t nCurrentTime = GetTime();
 
     if (pindexLast->nHeight + 1 >= params.nQUDActivationHeight) {
         return VoidCoinQUD(pindexLast, params, nCurrentTime);
