@@ -190,7 +190,22 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
         coinbaseTx.vout[0].scriptPubKey = m_options.coinbase_output_script;
         // VCIP-2: Base subsidy (Void Collapse Bounty checked at validation time)
         // Miner sets normal subsidy — bounty is verified by all nodes from block hash
-        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+        // Void Collapse Bounty Block: use prev block hash (known pre-mining)
+        CAmount subsidy = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+        bool isTailEmission = (subsidy == static_cast<CAmount>(0.1 * COIN));
+        CAmount blockSubsidy = subsidy;
+        if (!isTailEmission && nHeight >= 6000 && pindexPrev) {
+            const uint256& prevHash = pindexPrev->GetBlockHash();
+            const unsigned char* hashData = prevHash.begin();
+            uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
+                                 | ((uint32_t)hashData[30] << 8)
+                                 |  (uint32_t)hashData[31];
+            static constexpr uint32_t VOID_BOUNTY_THRESHOLD = 33554;
+            if (bountyValue < VOID_BOUNTY_THRESHOLD) {
+                blockSubsidy = 200 * COIN;
+            }
+        }
+        coinbaseTx.vout[0].nValue = nFees + blockSubsidy;
         // Note: If this block happens to be a Void Collapse Bounty Block,
         // the miner may claim 200 VOID. Nodes will accept it if hash qualifies.
         // Miners check IsVoidCollapseBountyBlock() before finalising coinbase.

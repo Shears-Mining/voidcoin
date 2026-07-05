@@ -3186,9 +3186,9 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 
     // Check for Void Collapse Bounty Block
     if (!isTailEmission && pindex->nHeight >= 6000) {
-        const uint256& blockHash = pindex->GetBlockHash();
-        // Use bytes from end of hash (leading bytes are always 0 due to PoW)
-        const unsigned char* hashData = blockHash.begin();
+        // Use prev block hash (same as miner.cpp) so GBT and validation agree
+        const uint256& prevHash = pindex->pprev ? pindex->pprev->GetBlockHash() : uint256();
+        const unsigned char* hashData = prevHash.begin();
         uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
                              | ((uint32_t)hashData[30] << 8)
                              |  (uint32_t)hashData[31];
