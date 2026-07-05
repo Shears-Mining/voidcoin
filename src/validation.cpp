@@ -4701,8 +4701,8 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
 
     // Check proof of work
     const Consensus::Params& consensusParams = chainman.GetConsensus();
-     // QUD: accept block if nBits matches wall-clock OR block-time based calculation.
-     // Handles Dead Zone nBits updates between job issue and submission.
+     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
+         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
      {
          uint32_t nBitsExpected = GetNextWorkRequired(pindexPrev, &block, consensusParams);
          uint32_t nBitsBlockTime = GetNextWorkRequired(pindexPrev, nullptr, consensusParams);
