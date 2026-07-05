@@ -178,23 +178,26 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, TxValidationState& state, 
         const Coin& coin = inputs.AccessCoin(prevout);
         assert(!coin.IsSpent());
 
-        /*
-         * VoidCoin dev fund spend-lock rule:
-         *
-         * Block 1 creates the deterministic 21,000,000 VOID dev fund as
-         * 21 coinbase outputs of 1,000,000 VOID each.
-         *
-         * These outputs do not use ordinary coinbase maturity. Instead, each
-         * output has its own consensus unlock height:
-         *
-         *   output 0 unlocks at block 2
-         *   output N unlocks at 2 + N * 262800
-         *
-         * This makes the dev fund locked by consensus, not by wallet policy
-         * or developer promises.
-         */
-        
-
+        // VCIP-1: P2QR-TIMELOCK enforcement (VCIP-1)
+        // If the output being spent is a VOIDCOIN_P2QR_TIMELOCK output,
+        // enforce that the current block height >= lockheight in scriptPubKey.
+        {
+            std::vector<std::vector<unsigned char>> vSolutions;
+            TxoutType scriptType = Solver(coin.out.scriptPubKey, vSolutions);
+            if (scriptType == TxoutType::VOIDCOIN_P2QR_TIMELOCK) {
+                if (vSolutions.size() >= 2 && vSolutions[1].size() == 4) {
+                    int32_t lockHeight = (int32_t)(
+                        (uint32_t)vSolutions[1][0]         |
+                        ((uint32_t)vSolutions[1][1] << 8)  |
+                        ((uint32_t)vSolutions[1][2] << 16) |
+                        ((uint32_t)vSolutions[1][3] << 24));
+                    if (nSpendHeight < lockHeight) {
+                        return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-timelock-not-met",
+                            strprintf("P2QR-TIMELOCK: locked until block %d, spend height %d", lockHeight, nSpendHeight));
+                    }
+                }
+            }
+        }
         // Check for negative or overflow input values
         nValueIn += coin.out.nValue;
         if (!MoneyRange(coin.out.nValue) || !MoneyRange(nValueIn)) {
