@@ -3179,14 +3179,14 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // Bounty disabled when remaining supply <= 200 VOID (enforced via isTailEmission check)
 
     CAmount baseSubsidy = GetBlockSubsidy(pindex->nHeight, params.GetConsensus());
-    bool isTailEmission = (baseSubsidy == static_cast<CAmount>(0.1 * COIN) &&
+    bool isTailEmission = !params.GetConsensus().fPowAllowMinDifficultyBlocks &&
+                          (baseSubsidy == static_cast<CAmount>(0.1 * COIN) &&
                            pindex->nHeight > params.GetConsensus().nSubsidyHalvingInterval);
-
     CAmount blockReward = nFees + baseSubsidy;
 
     // Check for Void Collapse Bounty Block
-    if (!isTailEmission && pindex->nHeight >= 6000) {
-        // Use prev block hash (same as miner.cpp) so GBT and validation agree
+    int nBountyActivation = params.GetConsensus().fPowAllowMinDifficultyBlocks ? 10 : 6000;
+    if (!isTailEmission && pindex->nHeight >= nBountyActivation) {
         const uint256& prevHash = pindex->pprev ? pindex->pprev->GetBlockHash() : uint256();
         const unsigned char* hashData = prevHash.begin();
         uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
