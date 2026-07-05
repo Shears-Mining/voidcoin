@@ -3189,9 +3189,9 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     if (!isTailEmission && pindex->nHeight >= nBountyActivation) {
         const uint256& prevHash = pindex->pprev ? pindex->pprev->GetBlockHash() : uint256();
         const unsigned char* hashData = prevHash.begin();
-        uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
-                             | ((uint32_t)hashData[30] << 8)
-                             |  (uint32_t)hashData[31];
+        uint32_t bountyValue = ((uint32_t)hashData[0] << 16)
+                             | ((uint32_t)hashData[1] << 8)
+                             |  (uint32_t)hashData[2];
         if (bountyValue < VOID_BOUNTY_THRESHOLD) {
             // Bounty triggered — allow 200 VOID coinbase
             blockReward = nFees + VOID_BOUNTY_REWARD;

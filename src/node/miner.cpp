@@ -198,9 +198,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
         if (!isTailEmission && nHeight >= nBountyActivation && pindexPrev) {
             const uint256& prevHash = pindexPrev->GetBlockHash();
             const unsigned char* hashData = prevHash.begin();
-            uint32_t bountyValue = ((uint32_t)hashData[29] << 16)
-                                 | ((uint32_t)hashData[30] << 8)
-                                 |  (uint32_t)hashData[31];
+            uint32_t bountyValue = ((uint32_t)hashData[0] << 16)
+                                 | ((uint32_t)hashData[1] << 8)
+                                 |  (uint32_t)hashData[2];
             static constexpr uint32_t VOID_BOUNTY_THRESHOLD = 33554;
             if (bountyValue < VOID_BOUNTY_THRESHOLD) {
                 blockSubsidy = 200 * COIN;
