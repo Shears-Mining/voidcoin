@@ -33,6 +33,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "mockscheduler", 0, "delta_time" },
     { "utxoupdatepsbt", 1, "descriptors" },
     { "generatetoaddress", 0, "nblocks" },
+    { "getnewtimelockaddress", 0, "lockheight" },
     { "generatetoaddress", 2, "maxtries" },
     { "generatetodescriptor", 0, "num_blocks" },
     { "generatetodescriptor", 2, "maxtries" },

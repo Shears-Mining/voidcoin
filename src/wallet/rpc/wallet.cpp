@@ -1036,6 +1036,7 @@ static RPCHelpMan createwalletdescriptor()
 // addresses
 RPCHelpMan getaddressinfo();
 RPCHelpMan getnewaddress();
+RPCHelpMan getnewtimelockaddress();
 RPCHelpMan getnewvoidcoinp2qraddress();
 RPCHelpMan getnewvoidcoinp2qrminingaddress();
 RPCHelpMan getrawchangeaddress();
@@ -1140,6 +1141,7 @@ Span<const CRPCCommand> GetWalletRPCCommands()
         {"wallet", &getbalance},
         {"wallet", &gethdkeys},
         {"wallet", &getnewaddress},
+        {"wallet", &getnewtimelockaddress},
         {"wallet", &getrawchangeaddress},
         {"wallet", &getreceivedbyaddress},
         {"wallet", &getreceivedbylabel},

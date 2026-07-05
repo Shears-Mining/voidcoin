@@ -97,6 +97,26 @@ struct VoidCoinP2QRDestination : public BaseHash<uint256>
     explicit VoidCoinP2QRDestination(const uint256& hash) : BaseHash(hash) {}
 };
 
+//! VCIP-1: P2QR-TIMELOCK destination (vqt1... addresses)
+//! Encodes a 32-byte ML-DSA-87 program hash + 4-byte little-endian lockheight
+struct VoidCoinP2QRTimeLockDestination
+{
+    uint256 program;   //!< 32-byte ML-DSA-87 pubkey commitment
+    int32_t lockHeight; //!< Block height after which funds can be spent
+
+    VoidCoinP2QRTimeLockDestination() : program(), lockHeight(0) {}
+    VoidCoinP2QRTimeLockDestination(const uint256& prog, int32_t height)
+        : program(prog), lockHeight(height) {}
+
+    bool operator==(const VoidCoinP2QRTimeLockDestination& o) const {
+        return program == o.program && lockHeight == o.lockHeight;
+    }
+    bool operator<(const VoidCoinP2QRTimeLockDestination& o) const {
+        if (program != o.program) return program < o.program;
+        return lockHeight < o.lockHeight;
+    }
+};
+
 //! CTxDestination subtype to encode any future Witness version
 struct WitnessUnknown
 {
@@ -144,7 +164,7 @@ struct PayToAnchor : public WitnessUnknown
  *  * WitnessUnknown: TxoutType::WITNESS_UNKNOWN destination (P2W??? address)
  *  A CTxDestination is the internal data type encoded in a voidcoin address
  */
-using CTxDestination = std::variant<CNoDestination, PubKeyDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessV1Taproot, VoidCoinP2QRDestination, PayToAnchor, WitnessUnknown>;
+using CTxDestination = std::variant<CNoDestination, PubKeyDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessV1Taproot, VoidCoinP2QRDestination, VoidCoinP2QRTimeLockDestination, PayToAnchor, WitnessUnknown>;
 
 /** Check whether a CTxDestination corresponds to one with an address. */
 bool IsValidDestination(const CTxDestination& dest);

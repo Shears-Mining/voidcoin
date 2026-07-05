@@ -847,6 +847,13 @@ public:
     {
     return UniValue(UniValue::VOBJ);
     }
+    UniValue operator()(const VoidCoinP2QRTimeLockDestination& id) const
+    {
+        UniValue obj(UniValue::VOBJ);
+        obj.pushKV("istimelocked", true);
+        obj.pushKV("lockheight", id.lockHeight);
+        return obj;
+    }
 
     UniValue operator()(const WitnessV1Taproot& id) const { return UniValue(UniValue::VOBJ); }
     UniValue operator()(const PayToAnchor& id) const { return UniValue(UniValue::VOBJ); }
@@ -1282,4 +1289,64 @@ RPCHelpMan walletdisplayaddress()
     };
 }
 #endif // ENABLE_EXTERNAL_SIGNER
+
+RPCHelpMan getnewtimelockaddress()
+{
+    return RPCHelpMan{"getnewtimelockaddress",
+                "\nReturns a new VoidCoin P2QR-TIMELOCK address (vqt1...) for receiving time-locked payments.\n"
+                "Funds sent to this address cannot be spent until the specified block height is reached.\n"
+                "VCIP-1 activates at block 10000.\n",
+                {
+                    {"lockheight", RPCArg::Type::NUM, RPCArg::Optional::NO, "The block height after which funds can be spent."},
+                    {"label", RPCArg::Type::STR, RPCArg::Default{""}, "An optional label for the address."},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "address", "The new vqt1... timelock address"},
+                        {RPCResult::Type::NUM, "lockheight", "The lockheight encoded in the address"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getnewtimelockaddress", "10000")
+                    + HelpExampleCli("getnewtimelockaddress", "10000 \"my timelock\"")
+                    + HelpExampleRpc("getnewtimelockaddress", "10000")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return UniValue::VNULL;
+    LOCK(pwallet->cs_wallet);
+    if (!pwallet->CanGetAddresses()) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: This wallet has no available keys");
+    }
+    const int64_t lockHeight = request.params[0].getInt<int64_t>();
+    if (lockHeight < 1 || lockHeight > 2100000000) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "lockheight must be between 1 and 2100000000");
+    }
+    const std::string label{request.params[1].isNull() ? "" : LabelFromValue(request.params[1])};
+    if (pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Cannot generate P2QR-TIMELOCK addresses in a wallet with private keys disabled");
+    }
+    EnsureWalletIsUnlocked(*pwallet);
+    // Generate a new P2QR destination (32-byte program)
+    auto op_dest = pwallet->GenerateNewVoidCoinP2QRDestination(label);
+    if (!op_dest) {
+        throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(op_dest).original);
+    }
+    const VoidCoinP2QRDestination& p2qr_dest = *op_dest;
+    // Combine with lockheight to create timelock destination
+    const uint256 program(std::vector<unsigned char>(p2qr_dest.begin(), p2qr_dest.end()));
+    const VoidCoinP2QRTimeLockDestination tl_dest(program, static_cast<int32_t>(lockHeight));
+    // Register the timelock address in the address book
+    const CTxDestination dest = tl_dest;
+    pwallet->SetAddressBook(dest, label, AddressPurpose::RECEIVE);
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("address", EncodeDestination(tl_dest));
+    result.pushKV("lockheight", lockHeight);
+    return result;
+},
+    };
+}
+
 } // namespace wallet

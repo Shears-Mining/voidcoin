@@ -379,6 +379,16 @@ public:
 
        return obj;
     }
+    UniValue operator()(const VoidCoinP2QRTimeLockDestination& id) const
+    {
+        UniValue obj(UniValue::VOBJ);
+        obj.pushKV("isscript", false);
+        obj.pushKV("iswitness", false);
+        obj.pushKV("isvoidcoinp2qrtimelock", true);
+        obj.pushKV("lockheight", id.lockHeight);
+        obj.pushKV("p2qr_program", HexStr(id.program));
+        return obj;
+    }
 
     UniValue operator()(const PayToAnchor& anchor) const
     {

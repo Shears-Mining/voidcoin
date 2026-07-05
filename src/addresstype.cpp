@@ -93,6 +93,21 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = p2qr;
         return true;
     }
+    case TxoutType::VOIDCOIN_P2QR_TIMELOCK: {
+        // vSolutions[0] = 32-byte program, vSolutions[1] = 4-byte lockheight LE
+        uint256 program;
+        std::copy(vSolutions[0].begin(), vSolutions[0].end(), program.begin());
+        int32_t lockHeight = 0;
+        if (vSolutions.size() >= 2 && vSolutions[1].size() == 4) {
+            lockHeight = (int32_t)(
+                (uint32_t)vSolutions[1][0]        |
+                ((uint32_t)vSolutions[1][1] << 8)  |
+                ((uint32_t)vSolutions[1][2] << 16) |
+                ((uint32_t)vSolutions[1][3] << 24));
+        }
+        addressRet = VoidCoinP2QRTimeLockDestination(program, lockHeight);
+        return true;
+    }
     case TxoutType::ANCHOR: {
         addressRet = PayToAnchor();
         return true;
@@ -153,6 +168,18 @@ public:
     {
         return CScript() << OP_VOIDCOIN_P2QR << ToByteVector(p2qr);
     }
+    CScript operator()(const VoidCoinP2QRTimeLockDestination& tl) const
+    {
+        // OP_QuantumQuark <32-byte-program> <4-byte-lockheight-LE>
+        std::vector<unsigned char> payload;
+        payload.reserve(32 + 4);
+        payload.insert(payload.end(), tl.program.begin(), tl.program.end());
+        payload.push_back((uint8_t)(tl.lockHeight & 0xFF));
+        payload.push_back((uint8_t)((tl.lockHeight >> 8) & 0xFF));
+        payload.push_back((uint8_t)((tl.lockHeight >> 16) & 0xFF));
+        payload.push_back((uint8_t)((tl.lockHeight >> 24) & 0xFF));
+        return CScript() << OP_VOIDCOIN_P2QR << payload;
+    }
     
     CScript operator()(const WitnessUnknown& id) const
     {
@@ -171,6 +198,7 @@ public:
     bool operator()(const WitnessV0ScriptHash& dest) const { return true; }
     bool operator()(const WitnessV1Taproot& dest) const { return true; }
     bool operator()(const VoidCoinP2QRDestination& dest) const { return true; }
+    bool operator()(const VoidCoinP2QRTimeLockDestination& dest) const { return true; }
     bool operator()(const WitnessUnknown& dest) const { return true; }
 };
 } // namespace

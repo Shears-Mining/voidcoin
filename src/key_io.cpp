@@ -77,6 +77,21 @@ public:
         );
         return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32QRHRP(), data);
     }
+    std::string operator()(const VoidCoinP2QRTimeLockDestination& id) const
+    {
+        // Encode 32-byte program + 4-byte lockheight LE as bech32m with qrt HRP
+        std::vector<unsigned char> raw;
+        raw.reserve(32 + 4);
+        raw.insert(raw.end(), id.program.begin(), id.program.end());
+        raw.push_back((uint8_t)(id.lockHeight & 0xFF));
+        raw.push_back((uint8_t)((id.lockHeight >> 8) & 0xFF));
+        raw.push_back((uint8_t)((id.lockHeight >> 16) & 0xFF));
+        raw.push_back((uint8_t)((id.lockHeight >> 24) & 0xFF));
+        std::vector<unsigned char> data;
+        data.reserve((raw.size() * 8 + 4) / 5);
+        ConvertBits<8, 5, true>([&](unsigned char c) { data.push_back(c); }, raw.begin(), raw.end());
+        return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32QRTTimelockHRP(), data);
+    }
 
     std::string operator()(const WitnessUnknown& id) const
     {
@@ -170,6 +185,35 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
         VoidCoinP2QRDestination dest;
         std::copy(data.begin(), data.end(), dest.begin());
         return dest;
+    }
+    // VCIP-1: P2QR-TIMELOCK address decoding (vqt1.../tnqt1.../bcrtqt1...)
+    if (dec.encoding == bech32::Encoding::BECH32M && dec.hrp == params.Bech32QRTTimelockHRP()) {
+        if (dec.data.empty()) {
+            error_str = "Empty Bech32 QRT data section";
+            return CNoDestination();
+        }
+        data.clear();
+        data.reserve((dec.data.size() * 5) / 8);
+        if (!ConvertBits<5, 8, false>(
+                [&](unsigned char c) { data.push_back(c); },
+                dec.data.begin(),
+                dec.data.end())) {
+            error_str = "Invalid padding in Bech32 QRT data section";
+            return CNoDestination();
+        }
+        // Expect 32 bytes program + 4 bytes lockheight
+        if (data.size() != 36) {
+            error_str = strprintf("Invalid Bech32 QRT address size (%d bytes, expected 36)", data.size());
+            return CNoDestination();
+        }
+        uint256 program;
+        std::copy(data.begin(), data.begin() + 32, program.begin());
+        int32_t lockHeight = (int32_t)(
+            (uint32_t)data[32]        |
+            ((uint32_t)data[33] << 8)  |
+            ((uint32_t)data[34] << 16) |
+            ((uint32_t)data[35] << 24));
+        return VoidCoinP2QRTimeLockDestination(program, lockHeight);
     }
     if (dec.encoding == bech32::Encoding::BECH32 || dec.encoding == bech32::Encoding::BECH32M) {
         if (dec.data.empty()) {
