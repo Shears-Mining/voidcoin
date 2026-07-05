@@ -3185,7 +3185,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     CAmount blockReward = nFees + baseSubsidy;
 
     // Check for Void Collapse Bounty Block
-    if (!isTailEmission && pindex->nHeight >= params.GetConsensus().nQUDActivationHeight) {
+    if (!isTailEmission && pindex->nHeight >= 6000) {
         const uint256& blockHash = pindex->GetBlockHash();
         const unsigned char* hashData = blockHash.begin();
         uint32_t bountyValue = ((uint32_t)hashData[0] << 16)
