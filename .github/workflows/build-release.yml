@@ -153,7 +153,8 @@ jobs:
             -DCMAKE_CXX_STANDARD=20 \
             -DCMAKE_CXX_EXTENSIONS=OFF \
             -DBUILD_GUI=ON \
-            -DCMAKE_CXX_FLAGS="-std=c++20"
+            -DCMAKE_CXX_FLAGS="-std=c++20 -mno-avx" \
+            -DWITH_SIMD=OFF
           cmake --build build-win -j1 2>&1 | tail -50
           echo "=== All exe files ==="
           find build-win -name "*.exe" -ls
