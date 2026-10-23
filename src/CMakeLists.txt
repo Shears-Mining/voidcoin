@@ -107,6 +107,7 @@ add_library(voidcoin_consensus STATIC EXCLUDE_FROM_ALL
   consensus/voidcoinp2qr.cpp
   hash.cpp
   primitives/block.cpp
+  primitives/pureheader.cpp
   primitives/transaction.cpp
   pubkey.cpp
   script/interpreter.cpp
@@ -131,6 +132,7 @@ endif()
 # Similar to `voidcoin_util` library, but higher-level.
 add_library(voidcoin_common STATIC EXCLUDE_FROM_ALL
   addresstype.cpp
+  auxpow.cpp
   base58.cpp
   bech32.cpp
   chain.cpp
@@ -288,6 +290,7 @@ add_library(voidcoin_node STATIC EXCLUDE_FROM_ALL
   policy/settings.cpp
   policy/truc_policy.cpp
   rest.cpp
+  rpc/auxpow_miner.cpp
   rpc/blockchain.cpp
   rpc/external_signer.cpp
   rpc/fees.cpp

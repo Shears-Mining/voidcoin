@@ -8,6 +8,7 @@
 #include <validation.h>
 
 #include <arith_uint256.h>
+#include <auxpow.h>
 #include <chain.h>
 #include <checkqueue.h>
 #include <clientversion.h>
@@ -2244,6 +2245,57 @@ PackageMempoolAcceptResult ProcessNewPackage(Chainstate& active_chainstate, CTxM
     return result;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// CBlock and CBlockIndex
+//
+
+bool CheckProofOfWork(const CBlockHeader& block, const Consensus::Params& params)
+{
+    /* VOID: only merge-mined (auxpow) blocks must carry our chain ID.  Normal blocks keep
+       whatever version they had in v1.0.5 (e.g. 0x20000000 plus ASICBoost-rolled bits), so the
+       existing chain stays valid and direct miners can keep using version rolling.  */
+    if (block.IsAuxpow() && params.fStrictChainId
+        && block.GetChainId() != params.nAuxpowChainId) {
+        LogError ("%s : block does not have our chain ID (got %d, expected %d, full nVersion %d)",
+                  __func__, block.GetChainId(), params.nAuxpowChainId, block.nVersion);
+        return false;
+    }
+
+    /* If there is no auxpow, just check the block hash.  */
+    if (!block.auxpow)
+    {
+        if (block.IsAuxpow()) {
+            LogError ("%s : no auxpow on block with auxpow version", __func__);
+            return false;
+        }
+
+        if (!CheckProofOfWork(block.GetHash(), block.nBits, params)) {
+            LogError ("%s : non-AUX proof of work failed", __func__);
+            return false;
+        }
+
+        return true;
+    }
+
+    /* We have auxpow.  Check it.  */
+    if (!block.IsAuxpow()) {
+        LogError ("%s : auxpow on block with non-auxpow version", __func__);
+        return false;
+    }
+
+    if (!CheckProofOfWork(block.auxpow->getParentBlockHash(), block.nBits, params)) {
+        LogError ("%s : AUX proof of work failed", __func__);
+        return false;
+    }
+    if (!block.auxpow->check(block.GetHash(), block.GetChainId(), params)) {
+        LogError ("%s : AUX POW is not valid", __func__);
+        return false;
+    }
+
+    return true;
+}
+
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     /*
@@ -4435,7 +4487,7 @@ void ChainstateManager::ReceivedBlockTransactions(const CBlock& block, CBlockInd
 static bool CheckBlockHeader(const CBlockHeader& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
+    if (fCheckPOW && !CheckProofOfWork(block, consensusParams))
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "high-hash", "proof of work failed");
 
     return true;
@@ -4641,7 +4693,7 @@ std::vector<unsigned char> ChainstateManager::GenerateCoinbaseCommitment(CBlock&
 bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams)
 {
     return std::all_of(headers.cbegin(), headers.cend(),
-            [&](const auto& header) { return CheckProofOfWork(header.GetHash(), header.nBits, consensusParams);});
+            [&](const auto& header) { return CheckProofOfWork(header, consensusParams);});
 }
 
 bool IsBlockMutated(const CBlock& block, bool check_witness_root)
@@ -4700,8 +4752,20 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
     assert(pindexPrev != nullptr);
     const int nHeight = pindexPrev->nHeight + 1;
 
-    // Check proof of work
     const Consensus::Params& consensusParams = chainman.GetConsensus();
+
+    // VOID: merge-mined (auxpow) blocks are only valid from the merge-mining start height.
+    if (block.IsAuxpow() && nHeight < consensusParams.nAuxpowStartHeight)
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER,
+                             "early-auxpow-block",
+                             "merge-mined block before the auxpow start height");
+    // (Normal blocks stay valid after the start: nLegacyBlocksBefore = -1.)
+    if (!consensusParams.AllowLegacyBlocks(nHeight) && block.IsLegacy())
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER,
+                             "late-legacy-block",
+                             "legacy block after auxpow start");
+
+    // Check proof of work
      if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
          return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
      {
