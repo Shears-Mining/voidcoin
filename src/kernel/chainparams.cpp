@@ -87,7 +87,7 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
  * Main network on which people trade goods and services.
  */
 /** VOID: merge-mining (AuxPoW) switches on at this mainnet height. */
-static constexpr int VOID_AUXPOW_START_HEIGHT = 55000;
+static constexpr int VOID_AUXPOW_START_HEIGHT = 56500;
 
 class CMainParams : public CChainParams {
 public:
