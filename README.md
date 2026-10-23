@@ -3,6 +3,12 @@
 [![GitHub release](https://img.shields.io/github/v/release/VoidHash-Crypto/VoidCoin-Core)](https://github.com/VoidHash-Crypto/VoidCoin-Core/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> **Preserved and maintained by [Shears Mining](https://sha256-mining.shears.co.uk).**
+> The original repository (`VoidHash-Crypto/VoidCoin-Core`) and the original developers are no longer
+> reachable. This repository keeps their complete history and release tags (v1.0.0 - v1.0.5) unchanged on
+> the `main` branch. VoidCoin Core **v1.1.0** adds merge-mining (AuxPoW) with Bitcoin from block **56,500** -
+> see [Merge-mining](#merge-mining-v110) below. All credit for VoidCoin itself goes to the VoidHash-Crypto team.
+
 **VoidCoin Core** is the reference implementation for the VoidCoin network — a proof-of-work blockchain built around native quantum-resistant ownership, designed for long-term monetary durability in a post-quantum world.
 
 While most cryptocurrencies remain vulnerable to future quantum computing attacks against their underlying signature schemes, VoidCoin introduces **P2QR (Pay-to-Quantum-Resistant)** addresses natively at the protocol level, giving holders a path to quantum-safe custody without waiting for a hard fork.
@@ -71,7 +77,7 @@ To build the Qt GUI wallet, set `-DBUILD_GUI=ON` instead. Detailed platform-spec
 - [Windows build notes](doc/build-windows.md)
 - [macOS build notes](doc/build-osx.md)
 
-Pre-built binaries for Windows and Linux (CLI and Qt wallet) are published on the [Releases](https://github.com/VoidHash-Crypto/VoidCoin-Core/releases) page.
+Pre-built binaries are published on the [Releases](https://github.com/Shears-Mining/voidcoin/releases) page of this repository. (The original VoidHash-Crypto releases page no longer exists.)
 
 ---
 
@@ -106,6 +112,26 @@ stratum+tcp://<pool-address>:<port>
 Username: your VOID address
 Password: x
 Both legacy (`V...`/`3...`) and quantum-resistant (`vqr1...`) addresses can be used as the mining username, depending on pool support.
+
+---
+
+## Merge-mining (v1.1.0)
+
+From block **56,500**, VOID can be **merge-mined with Bitcoin** (Namecoin-style AuxPoW, ported from
+Namecoin Core). Bitcoin miners can mine VOID at the same time, using the same work, at no extra cost -
+which brings far more hashrate to securing the chain.
+
+| | |
+|---|---|
+| Activates at | block **56,500** (all nodes must run v1.1.0 or later by then) |
+| Chain ID | **0x56** (86), strict |
+| Normal (non-merge-mined) blocks | still valid for ever - direct miners carry on as before |
+| Unchanged | 50 VOID reward, VCIP-2 200 VOID bounty, 0.1 VOID tail, 1-minute blocks, per-block difficulty |
+| RPCs | `createauxblock <address>` / `submitauxblock <hash> <auxpow>` (and wallet `getauxblock`) |
+
+Pool operators: see [doc/merge-mining.md](doc/merge-mining.md).
+
+**Older nodes (v1.0.x) will stop following the chain at block 56,500.** Please upgrade before then.
 
 ---
 
