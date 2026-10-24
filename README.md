@@ -8,6 +8,8 @@
 > reachable. This repository keeps their complete history and release tags (v1.0.0 - v1.0.5) unchanged on
 > the `main` branch. VoidCoin Core **v1.1.0** adds merge-mining (AuxPoW) with Bitcoin from block **56,500** -
 > see [Merge-mining](#merge-mining-v110) below. All credit for VoidCoin itself goes to the VoidHash-Crypto team.
+>
+> **Block explorer:** https://void-explorer.shears.co.uk
 
 **VoidCoin Core** is the reference implementation for the VoidCoin network — a proof-of-work blockchain built around native quantum-resistant ownership, designed for long-term monetary durability in a post-quantum world.
 
@@ -155,6 +157,8 @@ This change affects `src/validation.cpp` (block 1 coinbase validation and subsid
 
 ## Community
 
+- Block explorer: https://void-explorer.shears.co.uk
+- Merge-mining pool: https://sha256-mining.shears.co.uk
 - Discord: https://discord.gg/EmHXSJ4xHh
 - GitHub: https://github.com/VoidHash-Crypto/VoidCoin-Core
 - Organization: https://github.com/VoidHash-Crypto
