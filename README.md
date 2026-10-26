@@ -4,10 +4,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **Preserved and maintained by [Shears Mining](https://sha256-mining.shears.co.uk).**
-> The original repository (`VoidHash-Crypto/VoidCoin-Core`) and the original developers are no longer
-> reachable. This repository keeps their complete history and release tags (v1.0.0 - v1.0.5) unchanged on
+> The original repository (`VoidHash-Crypto/VoidCoin-Core`) is no longer online and the original developers
+> could not be reached (if that's you, please get in touch). This repository keeps their complete history and release tags (v1.0.0 - v1.0.5) unchanged on
 > the `main` branch. VoidCoin Core **v1.1.0** adds merge-mining (AuxPoW) with Bitcoin from block **56,500** -
 > see [Merge-mining](#merge-mining-v110) below. All credit for VoidCoin itself goes to the VoidHash-Crypto team.
+>
+> VoidCoin is a fork of **Kvanta5-Core**: the quantum-resistant cryptography (ML-DSA-87 signatures and the
+> P2QR address/script engine) and much of the consensus code are the **Kvanta5 team's** work, used under
+> the MIT licence.
 >
 > **Block explorer:** https://void-explorer.shears.co.uk
 
