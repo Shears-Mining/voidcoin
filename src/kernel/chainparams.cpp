@@ -86,6 +86,9 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
 /**
  * Main network on which people trade goods and services.
  */
+/** VOID: merge-mining (AuxPoW) switches on at this mainnet height. */
+static constexpr int VOID_AUXPOW_START_HEIGHT = 56500;
+
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
@@ -97,6 +100,14 @@ public:
         consensus.script_flag_exceptions.clear();
 
         consensus.BIP34Height = 100;
+        consensus.BIP16Height = 0; // VOID: P2SH always enforced (unchanged from v1.0.5)
+        // VOID merge-mining (AuxPoW). Chain ID 0x56 ('V'). Normal (non-merge-mined) blocks stay
+        // valid for ever, so direct miners can keep mining; the chain ID is only checked on
+        // merge-mined blocks, which are only accepted from nAuxpowStartHeight.
+        consensus.nAuxpowStartHeight = VOID_AUXPOW_START_HEIGHT;
+        consensus.nAuxpowChainId = 0x0056;
+        consensus.fStrictChainId = true;
+        consensus.nLegacyBlocksBefore = -1;
         consensus.BIP34Hash = uint256{};
         consensus.BIP65Height = 150;
         consensus.BIP66Height = 200;
@@ -255,6 +266,14 @@ public:
         consensus.script_flag_exceptions.emplace( // Taproot exception
             uint256{"0000000075a6fb48774590b99c93bcd2d358559949c3e338fcaaf4b4c1a01d94"}, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS);
         consensus.BIP34Height = 200;
+        consensus.BIP16Height = 0; // VOID: P2SH always enforced (unchanged from v1.0.5)
+        // VOID merge-mining (AuxPoW). Chain ID 0x56 ('V'). Normal (non-merge-mined) blocks stay
+        // valid for ever, so direct miners can keep mining; the chain ID is only checked on
+        // merge-mined blocks, which are only accepted from nAuxpowStartHeight.
+        consensus.nAuxpowStartHeight = 0;
+        consensus.nAuxpowChainId = 0x0056;
+        consensus.fStrictChainId = true;
+        consensus.nLegacyBlocksBefore = -1;
         consensus.BIP34Hash = uint256::ZERO;
         consensus.BIP65Height = 225;
         consensus.BIP66Height = 230;
@@ -397,6 +416,7 @@ public:
         consensus.signet_blocks = true;
         consensus.signet_challenge.assign(bin.begin(), bin.end());
         consensus.nSubsidyHalvingInterval = 210000;
+        consensus.BIP16Height = 1;
         consensus.BIP34Height = 1;
         consensus.BIP34Hash = uint256{};
         consensus.BIP65Height = 1;
@@ -426,6 +446,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+
+        consensus.nAuxpowStartHeight = 0;
+        consensus.nAuxpowChainId = 0x0056;
+        consensus.fStrictChainId = true;
+        consensus.nLegacyBlocksBefore = -1;
 
         // message start is defined as the first 4 bytes of the sha256d of the block script
         HashWriter h{};
@@ -479,7 +504,14 @@ public:
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 150;
         consensus.BIP34Height = 1; // Always active unless overridden
-        consensus.BIP34Hash = uint256();
+        consensus.BIP16Height = 0; // VOID: P2SH always enforced (unchanged from v1.0.5)
+        // VOID merge-mining (AuxPoW). Chain ID 0x56 ('V'). Normal (non-merge-mined) blocks stay
+        // valid for ever, so direct miners can keep mining; the chain ID is only checked on
+        // merge-mined blocks, which are only accepted from nAuxpowStartHeight.
+        consensus.nAuxpowStartHeight = 150;
+        consensus.nAuxpowChainId = 0x0056;
+        consensus.fStrictChainId = true;
+        consensus.nLegacyBlocksBefore = -1;
         consensus.BIP65Height = 1;  // Always active unless overridden
         consensus.BIP66Height = 1;  // Always active unless overridden
         consensus.CSVHeight = 1;    // Always active unless overridden
@@ -581,7 +613,7 @@ public:
                 .height = 110,
                 .hash_serialized = AssumeutxoHash{uint256{"6657b736d4fe4db0cbc796789e812d5dba7f5c143764b1b6905612f1830609d1"}},
                 .m_chain_tx_count = 111,
-                .blockhash = consteval_ctor(uint256{"696e92821f65549c7ee134edceeeeaaa4105647a3c4fd9f298c0aec0ab50425c"}),
+                .blockhash = consteval_ctor(uint256{"5dd7b94b2c61d979459c9de55113f3edfc7796a70f7a1e301dcb8dd86ceaa654"}),
             },
             {
                 // For use by fuzz target src/test/fuzz/utxo_snapshot.cpp
@@ -595,7 +627,7 @@ public:
                 .height = 299,
                 .hash_serialized = AssumeutxoHash{uint256{"a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27"}},
                 .m_chain_tx_count = 334,
-                .blockhash = consteval_ctor(uint256{"3bb7ce5eba0be48939b7a521ac1ba9316afee2c7bada3a0cca24188e6d7d96c0"}),
+                .blockhash = consteval_ctor(uint256{"110c7a29b73ac879de667bee1bb52c1855f585354254937f02f83770df6dda6a"}),
             },
         };
 

@@ -185,11 +185,8 @@ bool CheckProofOfWork(uint256 hash,
     return true;
 }
 
-bool CheckProofOfWork(const CBlockHeader& block,
-                      const Consensus::Params& params)
-{
-    return CheckProofOfWork(block.GetHash(), block.nBits, params);
-}
+// VOID: CheckProofOfWork(const CBlockHeader&, ...) now lives in validation.cpp and also
+// checks merge-mined (auxpow) blocks.
 
 bool PermittedDifficultyTransition(const Consensus::Params& params,
                                    int64_t height,

@@ -10,6 +10,7 @@
 #include <consensus/amount.h>
 #include <script/script.h>
 #include <serialize.h>
+#include <streams.h>
 #include <uint256.h>
 #include <util/transaction_identifier.h> // IWYU pragma: export
 

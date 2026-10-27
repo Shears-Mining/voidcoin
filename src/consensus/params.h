@@ -23,6 +23,7 @@ namespace Consensus {
 enum BuriedDeployment : int16_t {
     // buried deployments get negative values to avoid overlap with DeploymentPos
     DEPLOYMENT_HEIGHTINCB = std::numeric_limits<int16_t>::min(),
+    DEPLOYMENT_P2SH,
     DEPLOYMENT_CLTV,
     DEPLOYMENT_DERSIG,
     DEPLOYMENT_CSV,
@@ -82,6 +83,8 @@ struct Params {
      * - fail if the default script verify flags are applied.
      */
     std::map<uint256, uint32_t> script_flag_exceptions;
+    /** Block height at with BIP16 becomes active */
+    int BIP16Height;
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
     uint256 BIP34Hash;
@@ -174,6 +177,8 @@ struct Params {
     int DeploymentHeight(BuriedDeployment dep) const
     {
         switch (dep) {
+        case DEPLOYMENT_P2SH:
+            return BIP16Height;
         case DEPLOYMENT_HEIGHTINCB:
             return BIP34Height;
         case DEPLOYMENT_CLTV:
@@ -187,6 +192,25 @@ struct Params {
         } // no default case, so the compiler can warn about missing cases
         return std::numeric_limits<int>::max();
     }
+
+    /** Auxpow parameters */
+    int32_t nAuxpowChainId;
+    int nAuxpowStartHeight;
+    bool fStrictChainId;
+    int nLegacyBlocksBefore; // -1 for "always allow"
+
+    /**
+     * Check whether or not to allow legacy blocks at the given height.
+     * @param nHeight Height of the block to check.
+     * @return True if it is allowed to have a legacy version.
+     */
+    bool AllowLegacyBlocks(unsigned nHeight) const
+    {
+        if (nLegacyBlocksBefore < 0)
+            return true;
+        return static_cast<int> (nHeight) < nLegacyBlocksBefore;
+    }
+
 };
 
 } // namespace Consensus

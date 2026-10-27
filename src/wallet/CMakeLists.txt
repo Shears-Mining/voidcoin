@@ -18,6 +18,7 @@ add_library(voidcoin_wallet STATIC EXCLUDE_FROM_ALL
   migrate.cpp
   receive.cpp
   rpc/addresses.cpp
+  rpc/auxpow.cpp
   rpc/backup.cpp
   rpc/coins.cpp
   rpc/encrypt.cpp
@@ -38,6 +39,8 @@ target_link_libraries(voidcoin_wallet
   PRIVATE
     core_interface
     voidcoin_common
+    # merge-mining: the wallet's getauxblock uses the node's auxpow miner
+    voidcoin_node
     univalue
     Boost::headers
     $<TARGET_NAME_IF_EXISTS:USDT::headers>
