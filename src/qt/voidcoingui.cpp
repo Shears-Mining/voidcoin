@@ -264,12 +264,6 @@ void VoidCoinGUI::createActions()
     sendCoinsAction->setShortcut(QKeySequence(QStringLiteral("Alt+2")));
     tabGroup->addAction(sendCoinsAction);
     
-    vaultsAction = new QAction(platformStyle->SingleColorIcon(":/icons/lock_closed"), tr("&Vaults"), this);
-    vaultsAction->setStatusTip(tr("Create, approve, and broadcast VoidCoin multi-signature vault payments"));
-    vaultsAction->setToolTip(vaultsAction->statusTip());
-    vaultsAction->setCheckable(true);
-    vaultsAction->setShortcut(QKeySequence(QStringLiteral("Alt+5")));
-    tabGroup->addAction(vaultsAction);
     
     
     receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
@@ -293,8 +287,6 @@ void VoidCoinGUI::createActions()
     connect(overviewAction, &QAction::triggered, this, &VoidCoinGUI::gotoOverviewPage);
     connect(sendCoinsAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(sendCoinsAction, &QAction::triggered, [this]{ gotoSendCoinsPage(); });
-    connect(vaultsAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
-    connect(vaultsAction, &QAction::triggered, [this]{ gotoVaultsPage(); });
     connect(receiveCoinsAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(receiveCoinsAction, &QAction::triggered, this, &VoidCoinGUI::gotoReceiveCoinsPage);
     connect(historyAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
@@ -606,7 +598,6 @@ void VoidCoinGUI::createToolBars()
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         toolbar->addAction(overviewAction);
         toolbar->addAction(sendCoinsAction);
-        toolbar->addAction(vaultsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
         overviewAction->setChecked(true);
@@ -828,7 +819,6 @@ void VoidCoinGUI::setWalletActionsEnabled(bool enabled)
 {
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
-    vaultsAction->setEnabled(enabled);
     receiveCoinsAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
@@ -1004,12 +994,6 @@ void VoidCoinGUI::gotoSendCoinsPage(QString addr)
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
 
-void VoidCoinGUI::gotoVaultsPage()
-{
-    if (walletFrame) {
-        walletFrame->gotoVaultsPage();
-    }
-}
 
 
 void VoidCoinGUI::gotoSignMessageTab(QString addr)

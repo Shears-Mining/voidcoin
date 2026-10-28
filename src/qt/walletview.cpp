@@ -18,7 +18,6 @@
 #include <qt/transactiontablemodel.h>
 #include <qt/transactionview.h>
 #include <qt/walletmodel.h>
-#include <qt/vaultspage.h>
 
 #include <interfaces/node.h>
 #include <node/interface_ui.h>
@@ -65,8 +64,6 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     sendCoinsPage = new SendCoinsDialog(platformStyle);
     sendCoinsPage->setModel(walletModel);
     
-    vaultsPage = new VaultsPage(platformStyle);
-    vaultsPage->setModel(walletModel);
     
     
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
@@ -79,7 +76,6 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
-    addWidget(vaultsPage);
 
     connect(overviewPage, &OverviewPage::transactionClicked, this, &WalletView::transactionClicked);
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
@@ -173,10 +169,6 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
-void WalletView::gotoVaultsPage()
-{
-    setCurrentWidget(vaultsPage);
-}
 
 void WalletView::gotoSignMessageTab(QString addr)
 {

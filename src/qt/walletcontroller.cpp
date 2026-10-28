@@ -11,7 +11,6 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
-#include <qt/createp2qrmultisigdialog.h>
 
 #include <external_signer.h>
 #include <interfaces/handler.h>
@@ -291,13 +290,6 @@ void CreateWalletActivity::finish()
 
     if (m_wallet_model) {
         Q_EMIT created(m_wallet_model);
-
-        if (m_create_multisig_vault_wallet) {
-            auto* dialog = new CreateP2QRMultisigDialog(m_wallet_model, m_parent_widget);
-            dialog->setAttribute(Qt::WA_DeleteOnClose);
-            dialog->setWindowModality(Qt::ApplicationModal);
-            dialog->show();
-        }
     }
 
     Q_EMIT finished();
@@ -329,8 +321,6 @@ void CreateWalletActivity::create()
         Q_EMIT finished();
     });
     connect(m_create_wallet_dialog, &QDialog::accepted, [this] {
-        m_create_multisig_vault_wallet = m_create_wallet_dialog->isMultisigVaultWalletChecked();
-
         if (m_create_wallet_dialog->isEncryptWalletChecked()) {
             askPassphrase();
         } else {

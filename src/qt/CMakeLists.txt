@@ -146,12 +146,6 @@ if(ENABLE_WALLET)
       addressbookpage.h
       addresstablemodel.cpp
       addresstablemodel.h
-      approvevaultpaymentdialog.cpp
-      approvevaultpaymentdialog.h
-      broadcastvaultpaymentdialog.cpp
-      broadcastvaultpaymentdialog.h
-      importexportvaultdialog.cpp
-      importexportvaultdialog.h
       askpassphrasedialog.cpp
       askpassphrasedialog.h
       coincontroldialog.cpp
@@ -160,10 +154,6 @@ if(ENABLE_WALLET)
       coincontroltreewidget.h
       createwalletdialog.cpp
       createwalletdialog.h
-      createp2qrmultisigdialog.cpp
-      createp2qrmultisigdialog.h
-      createvaultpaymentdialog.cpp
-      createvaultpaymentdialog.h
       editaddressdialog.cpp
       editaddressdialog.h
       openuridialog.cpp
@@ -202,8 +192,6 @@ if(ENABLE_WALLET)
       transactiontablemodel.h
       transactionview.cpp
       transactionview.h
-      vaultspage.cpp
-      vaultspage.h
       walletcontroller.cpp
       walletcontroller.h
       walletframe.cpp

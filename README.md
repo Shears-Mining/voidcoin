@@ -11,6 +11,13 @@
 > Nothing else in the consensus rules changes: VCIP-3 (active since block 32,000) and all 2.0.3 rules are
 > kept exactly. Wallets made by 2.0.3 open in 2.1.0.
 >
+> **Vault pages are not included.** The Kvanta5 Vault pages in the 2.0.3 graphical wallet are proprietary
+> Kvanta5 code, licensed for v2.0.3 only, so they have been removed from this release. The consensus rules
+> for P2QR and vault outputs are unchanged, so all vault coins remain valid on chain, and the vault RPCs
+> (`createp2qrmultisig`, `dumpvoidcoinvaultbackup`, `importvoidcoinvaultbackup`) are still available.
+> If you hold coins in a multi-signature vault and want to spend them with the graphical wallet, use the
+> original v2.0.3 wallet **before block 56,500**.
+>
 > **Block explorer:** https://void-explorer.shears.co.uk
 
 ## Credits
@@ -18,8 +25,8 @@
 - **VoidCoin Development Team (VoidHash-Crypto)** - VoidCoin and VoidCoin Core up to v2.0.3, including
   VCIP-1, VCIP-2 and VCIP-3. See [COPYRIGHT](COPYRIGHT).
 - **Kvanta5 Organization** - VoidCoin is a fork of **Kvanta5-Core**. The quantum-resistant cryptography
-  (ML-DSA-87 signatures and the P2QR address/script engine), the Vault pages and the multisignature
-  functionality are the Kvanta5 team's work. Original Kvanta5 implementations remain copyrighted by their
+  (ML-DSA-87 signatures and the P2QR address/script engine), the Vault pages (not included in this
+  release) and the multisignature functionality are the Kvanta5 team's work. Original Kvanta5 implementations remain copyrighted by their
   authors; see [ATTRIBUTIONS.md](ATTRIBUTIONS.md) and the official Kvanta5 repository.
 - **KvantaMechanic (Kvanta5)** - recovered and published the v2.0.3 source this release is built on
   (https://github.com/KvantaMechanic/VoidCoin, preserved at Shears-Mining/voidcoin-2.0.3), with corrected

@@ -135,7 +135,6 @@ private:
     void finish();
 
     SecureString m_passphrase;
-    bool m_create_multisig_vault_wallet{false};
     CreateWalletDialog* m_create_wallet_dialog{nullptr};
     AskPassphraseDialog* m_passphrase_dialog{nullptr};
 };
